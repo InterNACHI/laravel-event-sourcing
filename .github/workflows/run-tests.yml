@@ -1,26 +1,25 @@
 name: run-tests
 
 on:
+    pull_request_target:
+        types: [ opened, synchronize, reopened, ready_for_review ]
     push:
-    pull_request:
-    schedule:
-        - cron: '0 0 * * *'
+        branches:
+            - v5
 
 jobs:
     test:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                php: [8.0, 7.4]
-                laravel: [8.*, 7.*, 6.*]
+                php: [8.3]
+                laravel: [12.*, 11.*]
                 dependency-version: [prefer-lowest, prefer-stable]
                 include:
-                    - laravel: 8.*
-                      testbench: 6.*
-                    - laravel: 7.*
-                      testbench: 5.*
-                    - laravel: 6.*
-                      testbench: 4.*
+                    - laravel: 12.*
+                      testbench: 10.*
+                    - laravel: 11.*
+                      testbench: 9.*
 
         name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }}
 
@@ -42,8 +41,9 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
-                  composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
+                  composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
+                  composer require --dev "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+                  composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
 
             - name: Execute tests
               run: vendor/bin/phpunit
