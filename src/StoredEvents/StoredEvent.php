@@ -38,7 +38,7 @@ class StoredEvent implements Arrayable
         $this->event_class = self::getActualClassForEvent($data['event_class']);
         $this->meta_data = $data['meta_data'];
         $this->created_at = $data['created_at'];
-        
+
         $this->instantiateEvent($originalEvent);
     }
 
@@ -101,7 +101,7 @@ class StoredEvent implements Arrayable
 
         return $eventHandlers->asyncEventHandlers()->count() > 0;
     }
-    
+
     protected function instantiateEvent(?ShouldBeStored $originalEvent): void
     {
         if ($originalEvent) {
@@ -109,7 +109,7 @@ class StoredEvent implements Arrayable
 
             return;
         }
-    
+
         try {
             $this->event = app(EventSerializer::class)->deserialize(
                 self::getActualClassForEvent($this->event_class),
@@ -120,7 +120,7 @@ class StoredEvent implements Arrayable
                     ? $this->meta_data
                     : json_encode($this->meta_data),
             );
-        
+
             $this->event->setMetaData(optional($this->meta_data)->toArray());
         } catch (Exception $exception) {
             throw InvalidStoredEvent::couldNotUnserializeEvent($this, $exception);
